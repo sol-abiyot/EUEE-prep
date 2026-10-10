@@ -1,4 +1,5 @@
 import json
+import random
 from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
@@ -40,3 +41,17 @@ def get_question_by_id(question_id):
         if q["id"] == question_id:
             return q
     return None
+
+
+def generate_quiz(subject=None, topic=None, limit=None, seed=None):
+    """Pick questions for a quiz, in random order.
+
+    subject, topic: optional filters.
+    limit: maximum number of questions (None means all that match).
+    seed: optional number that makes the shuffle repeatable (used in tests).
+    """
+    pool = get_questions(subject, topic)
+    random.Random(seed).shuffle(pool)
+    if limit is not None and limit > 0:
+        pool = pool[:limit]
+    return pool
