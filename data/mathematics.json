@@ -1,0 +1,32 @@
+[
+  {
+    "id": "math-alg-001",
+    "subject": "Mathematics",
+    "topic": "Algebra",
+    "difficulty": "easy",
+    "question": "Solve for x: 3x + 5 = 20.",
+    "choices": {"A": "4", "B": "5", "C": "6", "D": "7"},
+    "answer": "B",
+    "explanation": "Subtract 5 from both sides to get 3x = 15. Divide both sides by 3 to get x = 5."
+  },
+  {
+    "id": "math-alg-002",
+    "subject": "Mathematics",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "question": "What is the sum of the roots of x^2 - 5x + 6 = 0?",
+    "choices": {"A": "1", "B": "6", "C": "5", "D": "-5"},
+    "answer": "C",
+    "explanation": "Factorise: x^2 - 5x + 6 = (x - 2)(x - 3), so the roots are 2 and 3. Their sum is 2 + 3 = 5."
+  },
+  {
+    "id": "math-geo-001",
+    "subject": "Mathematics",
+    "topic": "Geometry",
+    "difficulty": "easy",
+    "question": "A rectangle is 12 cm long and 5 cm wide. What is the length of its diagonal?",
+    "choices": {"A": "7 cm", "B": "17 cm", "C": "60 cm", "D": "13 cm"},
+    "answer": "D",
+    "explanation": "The diagonal is the hypotenuse of a right triangle with sides 12 and 5. By Pythagoras, the diagonal is the square root of (144 + 25), which is the square root of 169, so it is 13 cm."
+  }
+]
