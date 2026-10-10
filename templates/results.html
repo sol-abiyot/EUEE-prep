@@ -9,11 +9,11 @@
 {% for r in result.results %}
 <section class="result {{ r.status }}">
     <h2>Question {{ loop.index }}: {{ r.status|capitalize }}</h2>
-    <p>{{ r.question }}</p>
+    <p>{{ r.question|math }}</p>
     <ul>
         {% for letter, text in r.choices.items() %}
         <li>
-            {{ letter }}. {{ text }}
+            {{ letter }}. {{ text|math }}
             {% if letter == r.correct_answer %}<strong>(correct answer)</strong>{% endif %}
             {% if letter == r.chosen %}(your answer){% endif %}
         </li>
@@ -21,7 +21,7 @@
     </ul>
     {% if r.status == "unanswered" %}<p>You did not answer this question.</p>{% endif %}
     {% if r.status == "invalid" %}<p>That was not a valid choice.</p>{% endif %}
-    <p class="explanation">Explanation: {{ r.explanation }}</p>
+    <p class="explanation">Explanation: {{ r.explanation|math }}</p>
 </section>
 {% endfor %}
 

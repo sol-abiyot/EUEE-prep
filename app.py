@@ -1,5 +1,7 @@
 from flask import Flask, abort, redirect, render_template, request, url_for
+import re
 
+from markupsafe import Markup, escape
 from grading import mark_quiz
 from quiz import (
     generate_quiz,
@@ -10,6 +12,16 @@ from quiz import (
 )
 
 app = Flask(__name__)
+@app.template_filter("math")
+def math_filter(text):
+    """Make plain-text maths readable: x^2 -> x<sup>2</sup>, pi -> the pi symbol, etc."""
+    safe = str(escape(text))
+    safe = re.sub(r"\^(-?\w+)", r"<sup>\1</sup>", safe)
+    safe = safe.replace("sqrt(", "√(")
+    safe = re.sub(r"\bpi\b", "π", safe)
+    safe = re.sub(r"(?<=\d) degrees?\b", "°", safe)
+    safe = re.sub(r"(?<=\d) ohm\b", " Ω", safe)
+    return Markup(safe)
 
 DEFAULT_QUIZ_LENGTH = 5
 MAX_QUIZ_LENGTH = 50

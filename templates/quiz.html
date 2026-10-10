@@ -13,12 +13,12 @@
     {% for q in questions %}
     <fieldset>
         <legend>Question {{ loop.index }} of {{ questions|length }}</legend>
-        <p>{{ q.question }}</p>
+        <p>{{ q.question|math }}</p>
         <input type="hidden" name="question_id" value="{{ q.id }}">
         {% for letter, text in q.choices.items() %}
         <label>
             <input type="radio" name="answer_{{ q.id }}" value="{{ letter }}">
-            {{ letter }}. {{ text }}
+            {{ letter }}. {{ text|math }}
         </label><br>
         {% endfor %}
     </fieldset>
