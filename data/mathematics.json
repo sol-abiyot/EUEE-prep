@@ -28,5 +28,75 @@
     "choices": {"A": "7 cm", "B": "17 cm", "C": "60 cm", "D": "13 cm"},
     "answer": "D",
     "explanation": "The diagonal is the hypotenuse of a right triangle with sides 12 and 5. By Pythagoras, the diagonal is the square root of (144 + 25), which is the square root of 169, so it is 13 cm."
+  },
+  {
+    "id": "math-fun-001",
+    "subject": "Mathematics",
+    "topic": "Functions",
+    "difficulty": "easy",
+    "question": "If f(x) = 2x + 3, what is f(4)?",
+    "choices": {"A": "11", "B": "9", "C": "14", "D": "10"},
+    "answer": "A",
+    "explanation": "Substitute x = 4 into the function: f(4) = 2(4) + 3 = 8 + 3 = 11."
+  },
+  {
+    "id": "math-alg-003",
+    "subject": "Mathematics",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "question": "If x + y = 10 and x - y = 4, what is the value of x?",
+    "choices": {"A": "3", "B": "7", "C": "6", "D": "10"},
+    "answer": "B",
+    "explanation": "Add the two equations: (x + y) + (x - y) = 10 + 4, so 2x = 14 and x = 7. Then y = 3, and 7 + 3 = 10 and 7 - 3 = 4 both check out."
+  },
+  {
+    "id": "math-geo-002",
+    "subject": "Mathematics",
+    "topic": "Geometry",
+    "difficulty": "medium",
+    "question": "What is the area of a circle with radius 7 cm? (Use pi = 22/7.)",
+    "choices": {"A": "44 cm^2", "B": "49 cm^2", "C": "154 cm^2", "D": "308 cm^2"},
+    "answer": "C",
+    "explanation": "Area = pi x r^2 = (22/7) x 7 x 7 = 22 x 7 = 154 cm^2. The value 44 is the circumference, not the area."
+  },
+  {
+    "id": "math-trig-001",
+    "subject": "Mathematics",
+    "topic": "Trigonometry",
+    "difficulty": "easy",
+    "question": "What is the value of sin 30 degrees?",
+    "choices": {"A": "1/2", "B": "sqrt(3)/2", "C": "sqrt(2)/2", "D": "1"},
+    "answer": "A",
+    "explanation": "In a 30-60-90 right triangle, the side opposite the 30 degree angle is half the hypotenuse, so sin 30 degrees = 1/2."
+  },
+  {
+    "id": "math-calc-001",
+    "subject": "Mathematics",
+    "topic": "Calculus",
+    "difficulty": "medium",
+    "question": "What is the derivative of f(x) = x^3 + 2x?",
+    "choices": {"A": "3x^2", "B": "x^2 + 2", "C": "3x + 2", "D": "3x^2 + 2"},
+    "answer": "D",
+    "explanation": "Use the power rule on each term: the derivative of x^3 is 3x^2, and the derivative of 2x is 2. So f'(x) = 3x^2 + 2."
+  },
+  {
+    "id": "math-seq-001",
+    "subject": "Mathematics",
+    "topic": "Sequences",
+    "difficulty": "medium",
+    "question": "What is the 10th term of the arithmetic sequence 3, 7, 11, 15, ...?",
+    "choices": {"A": "39", "B": "36", "C": "43", "D": "40"},
+    "answer": "A",
+    "explanation": "The first term is 3 and the common difference is 4. The nth term is 3 + (n - 1) x 4, so the 10th term is 3 + 9 x 4 = 3 + 36 = 39."
+  },
+  {
+    "id": "math-prob-001",
+    "subject": "Mathematics",
+    "topic": "Probability",
+    "difficulty": "easy",
+    "question": "A fair six-sided die is rolled once. What is the probability of getting a number greater than 4?",
+    "choices": {"A": "1/6", "B": "1/2", "C": "2/3", "D": "1/3"},
+    "answer": "D",
+    "explanation": "The numbers greater than 4 are 5 and 6, which is 2 favourable outcomes out of 6 possible outcomes. So the probability is 2/6 = 1/3."
   }
 ]
