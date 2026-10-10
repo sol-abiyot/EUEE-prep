@@ -4,10 +4,10 @@
 
 {% block content %}
 <h1>Your results</h1>
-<p><strong>Score: {{ result.score }} / {{ result.total }}</strong> ({{ result.percentage }}%)</p>
+<p class="score"><strong>Score: {{ result.score }} / {{ result.total }}</strong> ({{ result.percentage }}%)</p>
 
 {% for r in result.results %}
-<section>
+<section class="result {{ r.status }}">
     <h2>Question {{ loop.index }}: {{ r.status|capitalize }}</h2>
     <p>{{ r.question }}</p>
     <ul>
@@ -21,7 +21,7 @@
     </ul>
     {% if r.status == "unanswered" %}<p>You did not answer this question.</p>{% endif %}
     {% if r.status == "invalid" %}<p>That was not a valid choice.</p>{% endif %}
-    <p>Explanation: {{ r.explanation }}</p>
+    <p class="explanation">Explanation: {{ r.explanation }}</p>
 </section>
 {% endfor %}
 
