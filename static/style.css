@@ -180,3 +180,27 @@ button:hover {
         width: 100%;
     }
 }
+.progress {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 0.4rem 0;
+    font-weight: 600;
+    z-index: 1;
+}
+
+.jump a {
+    display: inline-block;
+    min-width: 2rem;
+    text-align: center;
+    padding: 0.2rem 0.5rem;
+    margin: 0.1rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    text-decoration: none;
+}
+
+fieldset {
+    scroll-margin-top: 3rem;
+}

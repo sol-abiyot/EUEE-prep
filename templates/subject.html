@@ -6,15 +6,31 @@
 <h1>{{ subject }}</h1>
 <p>{{ total }} questions in {{ topics|length }} topics.</p>
 
-<p><a href="{{ url_for('quiz_page', name=subject) }}">Start a {{ subject }} quiz (5 random questions)</a></p>
+<h2>Start a quiz</h2>
+<form method="get" action="{{ url_for('quiz_page', name=subject) }}">
+    <p>
+        <label for="topic">Topic</label><br>
+        <select name="topic" id="topic">
+            <option value="">All topics</option>
+            {% for t in topics %}
+            <option value="{{ t.name }}">{{ t.name }} ({{ t.count }})</option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>
+        <label for="limit">Number of questions</label><br>
+        <select name="limit" id="limit">
+            <option value="5">5</option>
+            <option value="10">10</option>
+        </select>
+    </p>
+    <button type="submit">Start quiz</button>
+</form>
 
-<h2>Practise by topic</h2>
+<h2>Topics in {{ subject }}</h2>
 <ul>
     {% for t in topics %}
-    <li>
-        {{ t.name }} ({{ t.count }} questions)
-        - <a href="{{ url_for('quiz_page', name=subject, topic=t.name) }}">Start quiz</a>
-    </li>
+    <li>{{ t.name }} ({{ t.count }} questions)</li>
     {% endfor %}
 </ul>
 

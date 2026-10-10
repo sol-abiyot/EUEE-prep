@@ -6,12 +6,21 @@
 <h1>{{ subject }} quiz{% if topic %}: {{ topic }}{% endif %}</h1>
 <p>{{ questions|length }} questions. Choose one answer for each question, then submit. Unanswered questions score zero.</p>
 
+<p class="progress">Answered: <span id="answered">0</span> of {{ questions|length }}</p>
+
+<nav class="jump">
+    Jump to:
+    {% for q in questions %}
+    <a href="#q{{ loop.index }}">{{ loop.index }}</a>
+    {% endfor %}
+</nav>
+
 <form method="post" action="{{ url_for('submit') }}">
     <input type="hidden" name="subject" value="{{ subject }}">
     <input type="hidden" name="topic" value="{{ topic or '' }}">
 
     {% for q in questions %}
-    <fieldset>
+    <fieldset id="q{{ loop.index }}">
         <legend>Question {{ loop.index }} of {{ questions|length }}</legend>
         <p>{{ q.question|math }}</p>
         <input type="hidden" name="question_id" value="{{ q.id }}">
@@ -28,4 +37,12 @@
 </form>
 
 <p><a href="{{ url_for('subject', name=subject) }}">Cancel and go back</a></p>
+
+<script>
+    const form = document.querySelector("form");
+    form.addEventListener("change", function () {
+        const answered = form.querySelectorAll("input:checked").length;
+        document.getElementById("answered").textContent = answered;
+    });
+</script>
 {% endblock %}
