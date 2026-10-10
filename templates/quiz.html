@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ subject }} quiz - EUEE Prep{% endblock %}
+
+{% block content %}
+<h1>{{ subject }} quiz{% if topic %}: {{ topic }}{% endif %}</h1>
+<p>{{ questions|length }} questions. Choose one answer for each question, then submit. Unanswered questions score zero.</p>
+
+<form method="post" action="{{ url_for('submit') }}">
+    <input type="hidden" name="subject" value="{{ subject }}">
+    <input type="hidden" name="topic" value="{{ topic or '' }}">
+
+    {% for q in questions %}
+    <fieldset>
+        <legend>Question {{ loop.index }} of {{ questions|length }}</legend>
+        <p>{{ q.question }}</p>
+        <input type="hidden" name="question_id" value="{{ q.id }}">
+        {% for letter, text in q.choices.items() %}
+        <label>
+            <input type="radio" name="answer_{{ q.id }}" value="{{ letter }}">
+            {{ letter }}. {{ text }}
+        </label><br>
+        {% endfor %}
+    </fieldset>
+    {% endfor %}
+
+    <button type="submit">Submit quiz</button>
+</form>
+
+<p><a href="{{ url_for('subject', name=subject) }}">Cancel and go back</a></p>
+{% endblock %}

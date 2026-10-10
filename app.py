@@ -1,8 +1,23 @@
-from flask import Flask, abort, render_template
+from flask import Flask, abort, redirect, render_template, request, url_for
 
-from quiz import get_questions, list_subjects, list_topics
+from grading import mark_quiz
+from quiz import (
+    generate_quiz,
+    get_question_by_id,
+    get_questions,
+    list_subjects,
+    list_topics,
+)
 
 app = Flask(__name__)
+
+DEFAULT_QUIZ_LENGTH = 5
+MAX_QUIZ_LENGTH = 50
+
+
+def find_subject(name):
+    """Return the properly capitalised subject name, or None if it does not exist."""
+    return next((s for s in list_subjects() if s.lower() == name.lower()), None)
 
 
 @app.route("/")
@@ -15,7 +30,7 @@ def home():
 
 @app.route("/subject/<name>")
 def subject(name):
-    match = next((s for s in list_subjects() if s.lower() == name.lower()), None)
+    match = find_subject(name)
     if match is None:
         abort(404)
     topics = [
@@ -27,6 +42,43 @@ def subject(name):
         subject=match,
         topics=topics,
         total=len(get_questions(match)),
+    )
+
+
+@app.route("/quiz/<name>")
+def quiz_page(name):
+    match = find_subject(name)
+    if match is None:
+        abort(404)
+
+    topic = request.args.get("topic") or None
+    limit = request.args.get("limit", default=DEFAULT_QUIZ_LENGTH, type=int)
+    if limit < 1 or limit > MAX_QUIZ_LENGTH:
+        limit = DEFAULT_QUIZ_LENGTH
+
+    questions = generate_quiz(match, topic, limit)
+    if not questions:
+        abort(404)
+    return render_template(
+        "quiz.html", subject=match, topic=topic, questions=questions
+    )
+
+
+@app.route("/submit", methods=["POST"])
+def submit():
+    # Remove duplicate ids but keep the original order.
+    ids = list(dict.fromkeys(request.form.getlist("question_id")))
+    questions = [q for q in (get_question_by_id(i) for i in ids) if q is not None]
+    if not questions:
+        return redirect(url_for("home"))
+
+    answers = {q["id"]: request.form.get("answer_" + q["id"], "") for q in questions}
+    result = mark_quiz(questions, answers)
+    return render_template(
+        "results.html",
+        result=result,
+        subject=request.form.get("subject", ""),
+        topic=request.form.get("topic") or None,
     )
 
 

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Results - EUEE Prep{% endblock %}
+
+{% block content %}
+<h1>Your results</h1>
+<p><strong>Score: {{ result.score }} / {{ result.total }}</strong> ({{ result.percentage }}%)</p>
+
+{% for r in result.results %}
+<section>
+    <h2>Question {{ loop.index }}: {{ r.status|capitalize }}</h2>
+    <p>{{ r.question }}</p>
+    <ul>
+        {% for letter, text in r.choices.items() %}
+        <li>
+            {{ letter }}. {{ text }}
+            {% if letter == r.correct_answer %}<strong>(correct answer)</strong>{% endif %}
+            {% if letter == r.chosen %}(your answer){% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% if r.status == "unanswered" %}<p>You did not answer this question.</p>{% endif %}
+    {% if r.status == "invalid" %}<p>That was not a valid choice.</p>{% endif %}
+    <p>Explanation: {{ r.explanation }}</p>
+</section>
+{% endfor %}
+
+<p>
+    {% if subject %}
+    <a href="{{ url_for('quiz_page', name=subject, topic=topic) }}">Take another quiz</a> |
+    <a href="{{ url_for('subject', name=subject) }}">Back to {{ subject }}</a> |
+    {% endif %}
+    <a href="{{ url_for('home') }}">Home</a>
+</p>
+{% endblock %}
