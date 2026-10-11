@@ -204,3 +204,38 @@ button:hover {
 fieldset {
     scroll-margin-top: 3rem;
 }
+.lead {
+    font-size: 1.1rem;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0 2rem;
+}
+
+.card {
+    display: block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 6px solid var(--brand);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    text-decoration: none;
+    color: var(--text);
+}
+
+.card:hover {
+    background: var(--good-bg);
+}
+
+.card h3 {
+    margin: 0 0 0.3rem;
+    color: var(--brand-dark);
+}
+
+.card p {
+    margin: 0;
+    color: var(--muted);
+}

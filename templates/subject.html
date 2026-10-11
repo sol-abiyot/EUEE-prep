@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>{{ subject }}</h1>
-<p>{{ total }} questions in {{ topics|length }} topics.</p>
+<p>{{ total|plural }} in {{ topics|length|plural("topic") }}.</p>
 
 <h2>Start a quiz</h2>
 <form method="get" action="{{ url_for('quiz_page', name=subject) }}">
@@ -30,7 +30,7 @@
 <h2>Topics in {{ subject }}</h2>
 <ul>
     {% for t in topics %}
-    <li>{{ t.name }} ({{ t.count }} questions)</li>
+        <li>{{ t.name }} ({{ t.count|plural }})</li>
     {% endfor %}
 </ul>
 

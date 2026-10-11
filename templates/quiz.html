@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>{{ subject }} quiz{% if topic %}: {{ topic }}{% endif %}</h1>
-<p>{{ questions|length }} questions. Choose one answer for each question, then submit. Unanswered questions score zero.</p>
+<p><p>{{ questions|length|plural }}. Choose one answer for each question, then submit. Unanswered questions score zero.</p>
 
 <p class="progress">Answered: <span id="answered">0</span> of {{ questions|length }}</p>
 

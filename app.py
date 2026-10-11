@@ -22,6 +22,10 @@ def math_filter(text):
     safe = re.sub(r"(?<=\d) degrees?\b", "°", safe)
     safe = re.sub(r"(?<=\d) ohm\b", " Ω", safe)
     return Markup(safe)
+@app.template_filter("plural")
+def plural(count, word="question"):
+    """Return '1 question' or '5 questions'."""
+    return f"{count} {word}" + ("" if count == 1 else "s")
 
 DEFAULT_QUIZ_LENGTH = 5
 MAX_QUIZ_LENGTH = 50

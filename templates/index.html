@@ -2,15 +2,22 @@
 
 {% block content %}
 <h1>EUEE Prep</h1>
-<p>Practice for the Ethiopian University Entrance Examination with original questions, automatic marking and clear explanations.</p>
+<p class="lead">Practice for the Ethiopian University Entrance Examination with original questions, automatic marking and clear explanations.</p>
 
 <h2>Choose a subject</h2>
-<ul>
+<div class="cards">
     {% for s in subjects %}
-    <li>
-        <a href="{{ url_for('subject', name=s.name) }}">{{ s.name }}</a>
-        ({{ s.count }} questions)
-    </li>
+    <a class="card" href="{{ url_for('subject', name=s.name) }}">
+        <h3>{{ s.name }}</h3>
+        <p>{{ s.count|plural }} of original practice</p>
+    </a>
     {% endfor %}
-</ul>
+</div>
+
+<h2>How it works</h2>
+<ol>
+    <li>Choose a subject, a topic and the number of questions.</li>
+    <li>Answer the questions and submit the quiz.</li>
+    <li>See your score, the correct answers and an explanation for each question.</li>
+</ol>
 {% endblock %}
