@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - EUEE Prep{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<p>{{ message }}</p>
+<p><a href="{{ url_for('home') }}">Back to the home page</a></p>
+{% endblock %}

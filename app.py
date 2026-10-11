@@ -101,6 +101,22 @@ def submit():
 @app.errorhandler(404)
 def not_found(error):
     return render_template("404.html"), 404
+@app.errorhandler(405)
+def method_not_allowed(error):
+    return render_template(
+        "error.html",
+        title="Not allowed",
+        message="That page cannot be opened this way. Please start from the home page.",
+    ), 405
+
+
+@app.errorhandler(500)
+def server_error(error):
+    return render_template(
+        "error.html",
+        title="Something went wrong",
+        message="An unexpected error occurred. Please go back and try again.",
+    ), 500
 
 
 if __name__ == "__main__":
