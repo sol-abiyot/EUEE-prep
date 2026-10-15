@@ -2,16 +2,43 @@ import json
 import random
 from pathlib import Path
 
+from db import fetch_all_questions, get_connection, init_db, seed_from_json
+
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
+_database_ready = False
 
-def load_questions():
-    """Read every .json file in the data folder and return one list of questions."""
+
+def load_questions_from_json():
+    """Read every .json file in the data folder (the source the database is built from)."""
     questions = []
     for path in sorted(DATA_DIR.glob("*.json")):
         with open(path, encoding="utf-8") as f:
             questions.extend(json.load(f))
     return questions
+
+
+def ensure_database():
+    """Create the tables and load the JSON questions once per run of the program."""
+    global _database_ready
+    if not _database_ready:
+        conn = get_connection()
+        try:
+            init_db(conn)
+            seed_from_json(conn)
+        finally:
+            conn.close()
+        _database_ready = True
+
+
+def load_questions():
+    """Return all questions, read from the SQLite database."""
+    ensure_database()
+    conn = get_connection()
+    try:
+        return fetch_all_questions(conn)
+    finally:
+        conn.close()
 
 
 def list_subjects():

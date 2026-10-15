@@ -115,7 +115,39 @@ def seed_from_json(conn, data_dir=DATA_DIR):
     conn.commit()
     return count
 
+def fetch_all_questions(conn):
+    """Return every question as a dictionary, in the same shape as the JSON files."""
+    rows = conn.execute(
+        """
+        SELECT q.id, s.name AS subject, t.name AS topic, q.difficulty,
+               q.question_text, q.explanation, q.correct_choice
+        FROM questions q
+        JOIN topics t ON t.id = q.topic_id
+        JOIN subjects s ON s.id = t.subject_id
+        ORDER BY s.name, q.id
+        """
+    ).fetchall()
 
+    choices = {}
+    for row in conn.execute(
+        "SELECT question_id, letter, choice_text FROM choices "
+        "ORDER BY question_id, letter"
+    ):
+        choices.setdefault(row["question_id"], {})[row["letter"]] = row["choice_text"]
+
+    return [
+        {
+            "id": row["id"],
+            "subject": row["subject"],
+            "topic": row["topic"],
+            "difficulty": row["difficulty"],
+            "question": row["question_text"],
+            "choices": choices.get(row["id"], {}),
+            "answer": row["correct_choice"],
+            "explanation": row["explanation"],
+        }
+        for row in rows
+    ]
 if __name__ == "__main__":
     connection = get_connection()
     init_db(connection)

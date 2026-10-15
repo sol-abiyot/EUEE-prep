@@ -3,7 +3,7 @@ import sqlite3
 import pytest
 
 from db import get_connection, init_db, seed_from_json
-from quiz import load_questions
+from quiz import load_questions_from_json as load_questions
 
 
 @pytest.fixture
