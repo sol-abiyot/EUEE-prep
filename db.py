@@ -71,15 +71,14 @@ CREATE TABLE IF NOT EXISTS attempt_answers (
 """
 
 
-def get_connection(db_path=DB_PATH):
+def get_connection(db_path=None):
     """Open the database (creating its folder if needed)."""
-    db_path = Path(db_path)
+    db_path = Path(db_path or DB_PATH)
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
-
 
 def init_db(conn):
     """Create the tables if they do not exist yet."""

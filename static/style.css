@@ -239,3 +239,75 @@ fieldset {
     margin: 0;
     color: var(--muted);
 }
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.account {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #ffffff;
+}
+
+.account a {
+    color: #ffffff;
+}
+
+.account form {
+    margin: 0;
+}
+
+.link-button {
+    width: auto;
+    background: none;
+    border: 1px solid #ffffff;
+    border-radius: 6px;
+    padding: 0.3rem 0.8rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+}
+
+.link-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.auth-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    max-width: 420px;
+}
+
+.auth-form label {
+    display: block;
+    font-weight: 600;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"] {
+    width: 100%;
+    padding: 0.6rem;
+    margin: 0.2rem 0 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.errors {
+    background: var(--bad-bg);
+    color: var(--bad);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.errors ul,
+.errors p {
+    margin: 0;
+}

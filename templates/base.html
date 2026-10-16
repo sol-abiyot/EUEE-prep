@@ -9,6 +9,17 @@
 <body>
     <header>
         <a href="{{ url_for('home') }}"><strong>EUEE Prep</strong></a>
+        <nav class="account">
+            {% if current_user %}
+            <span>{{ current_user.display_name or current_user.username }}</span>
+            <form method="post" action="{{ url_for('logout') }}">
+                <button type="submit" class="link-button">Log out</button>
+            </form>
+            {% else %}
+            <a href="{{ url_for('login') }}">Log in</a>
+            <a href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+        </nav>
     </header>
     <main>
         {% block content %}{% endblock %}

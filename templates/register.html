@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Register - EUEE Prep{% endblock %}
+
+{% block content %}
+<h1>Create an account</h1>
+
+{% if errors %}
+<div class="errors">
+    <ul>
+        {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="post" class="auth-form">
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" value="{{ username }}" required maxlength="30" autocomplete="username">
+
+    <label for="display_name">Display name (optional)</label>
+    <input type="text" id="display_name" name="display_name" value="{{ display_name }}" maxlength="60">
+
+    <label for="password">Password (at least 8 characters)</label>
+    <input type="password" id="password" name="password" required autocomplete="new-password">
+
+    <label for="confirm">Repeat password</label>
+    <input type="password" id="confirm" name="confirm" required autocomplete="new-password">
+
+    <button type="submit">Create account</button>
+</form>
+
+<p>Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+{% endblock %}
