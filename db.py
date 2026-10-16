@@ -34,6 +34,40 @@ CREATE TABLE IF NOT EXISTS choices (
     choice_text TEXT NOT NULL,
     PRIMARY KEY (question_id, letter)
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    display_name TEXT,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'admin')),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    last_login_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS login_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    logged_in_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    subject TEXT NOT NULL,
+    topic TEXT,
+    score INTEGER NOT NULL,
+    total INTEGER NOT NULL,
+    taken_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS attempt_answers (
+    attempt_id INTEGER NOT NULL REFERENCES attempts(id),
+    question_id TEXT NOT NULL REFERENCES questions(id),
+    chosen TEXT,
+    is_correct INTEGER NOT NULL CHECK (is_correct IN (0, 1)),
+    PRIMARY KEY (attempt_id, question_id)
+);
 """
 
 

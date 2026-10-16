@@ -19,17 +19,17 @@ def load_questions_from_json():
 
 
 def ensure_database():
-    """Create the tables and load the JSON questions once per run of the program."""
+    """Create the tables, and load the JSON questions only if the database has none."""
     global _database_ready
     if not _database_ready:
         conn = get_connection()
         try:
             init_db(conn)
-            seed_from_json(conn)
+            if conn.execute("SELECT COUNT(*) FROM questions").fetchone()[0] == 0:
+                seed_from_json(conn)
         finally:
             conn.close()
         _database_ready = True
-
 
 def load_questions():
     """Return all questions, read from the SQLite database."""
