@@ -5,6 +5,10 @@
 {% block content %}
 <h1>Create an account</h1>
 
+{% if next_url %}
+<p class="notice">Please log in or register to start practising.</p>
+{% endif %}
+
 {% if errors %}
 <div class="errors">
     <ul>
@@ -15,10 +19,16 @@
 
 <form method="post" class="auth-form">
     <label for="username">Username</label>
-    <input type="text" id="username" name="username" value="{{ username }}" required maxlength="30" autocomplete="username">
+    <input type="text" id="username" name="username" value="{{ form.username }}" required maxlength="30" autocomplete="username">
 
     <label for="display_name">Display name (optional)</label>
-    <input type="text" id="display_name" name="display_name" value="{{ display_name }}" maxlength="60">
+    <input type="text" id="display_name" name="display_name" value="{{ form.display_name }}" maxlength="60">
+
+    <label for="email">Email address</label>
+    <input type="text" id="email" name="email" value="{{ form.email }}" required maxlength="120" autocomplete="email">
+
+    <label for="phone">Phone number (optional)</label>
+    <input type="text" id="phone" name="phone" value="{{ form.phone }}" maxlength="20" autocomplete="tel">
 
     <label for="password">Password (at least 8 characters)</label>
     <input type="password" id="password" name="password" required autocomplete="new-password">
@@ -29,5 +39,5 @@
     <button type="submit">Create account</button>
 </form>
 
-<p>Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+<p>Already registered? <a href="{{ url_for('login', next=next_url or None) }}">Log in</a></p>
 {% endblock %}

@@ -1,6 +1,7 @@
 import os
 import re
 import secrets
+from functools import wraps
 from pathlib import Path
 
 from flask import (
@@ -19,6 +20,8 @@ from auth import (
     check_login,
     create_user,
     get_user,
+    normalize_email,
+    normalize_phone,
     record_login,
     validate_registration,
 )
@@ -50,6 +53,7 @@ def load_secret_key():
 
 app.secret_key = load_secret_key()
 app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax")
+app.config["REQUIRE_LOGIN"] = True
 
 DEFAULT_QUIZ_LENGTH = 5
 MAX_QUIZ_LENGTH = 50
@@ -82,6 +86,26 @@ def database():
 def find_subject(name):
     """Return the properly capitalised subject name, or None if it does not exist."""
     return next((s for s in list_subjects() if s.lower() == name.lower()), None)
+
+
+def safe_next(value):
+    """Only allow redirects to pages inside this site."""
+    if value and value.startswith("/") and not value.startswith("//") and "\\" not in value:
+        return value
+    return ""
+
+
+def login_required(view):
+    """Send visitors who are not logged in to the login page."""
+
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if app.config["REQUIRE_LOGIN"] and g.user is None:
+            target = request.full_path.rstrip("?") if request.method == "GET" else None
+            return redirect(url_for("login", next=target))
+        return view(*args, **kwargs)
+
+    return wrapped
 
 
 @app.before_request
@@ -132,6 +156,7 @@ def subject(name):
 
 
 @app.route("/quiz/<name>")
+@login_required
 def quiz_page(name):
     match = find_subject(name)
     if match is None:
@@ -151,6 +176,7 @@ def quiz_page(name):
 
 
 @app.route("/submit", methods=["POST"])
+@login_required
 def submit():
     # Remove duplicate ids but keep the original order.
     ids = list(dict.fromkeys(request.form.getlist("question_id")))
@@ -170,35 +196,47 @@ def submit():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    next_url = safe_next(request.values.get("next", ""))
     errors = []
-    username = ""
-    display_name = ""
+    form = {"username": "", "display_name": "", "email": "", "phone": ""}
     if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        display_name = request.form.get("display_name", "").strip()[:60]
+        form["username"] = request.form.get("username", "").strip()
+        form["display_name"] = request.form.get("display_name", "").strip()[:60]
+        form["email"] = request.form.get("email", "").strip()
+        form["phone"] = request.form.get("phone", "").strip()
         password = request.form.get("password", "")
         confirm = request.form.get("confirm", "")
-        errors = validate_registration(username, password, confirm)
+        errors = validate_registration(
+            form["username"], password, confirm, form["email"], form["phone"]
+        )
         if not errors:
             conn = database()
             try:
-                user_id = create_user(conn, username, password, display_name)
-                if user_id is None:
-                    errors.append("That username is already taken.")
+                user_id, problem = create_user(
+                    conn,
+                    form["username"],
+                    password,
+                    form["display_name"],
+                    normalize_email(form["email"]),
+                    normalize_phone(form["phone"]) or None,
+                )
+                if problem:
+                    errors.append(problem)
                 else:
                     record_login(conn, user_id)
                     session.clear()
                     session["user_id"] = user_id
-                    return redirect(url_for("home"))
+                    return redirect(next_url or url_for("home"))
             finally:
                 conn.close()
     return render_template(
-        "register.html", errors=errors, username=username, display_name=display_name
+        "register.html", errors=errors, form=form, next_url=next_url
     )
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    next_url = safe_next(request.values.get("next", ""))
     error = None
     if request.method == "POST":
         username = request.form.get("username", "").strip()
@@ -212,10 +250,10 @@ def login():
                 record_login(conn, user["id"])
                 session.clear()
                 session["user_id"] = user["id"]
-                return redirect(url_for("home"))
+                return redirect(next_url or url_for("home"))
         finally:
             conn.close()
-    return render_template("login.html", error=error)
+    return render_template("login.html", error=error, next_url=next_url)
 
 
 @app.route("/logout", methods=["POST"])

@@ -80,9 +80,20 @@ def get_connection(db_path=None):
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
+def add_missing_columns(conn):
+    """Add columns introduced after the first version of the schema (safe to repeat)."""
+    existing = {row[1] for row in conn.execute("PRAGMA table_info(users)")}
+    if "email" not in existing:
+        conn.execute("ALTER TABLE users ADD COLUMN email TEXT")
+    if "phone" not in existing:
+        conn.execute("ALTER TABLE users ADD COLUMN phone TEXT")
+    conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)")
+
+
 def init_db(conn):
     """Create the tables if they do not exist yet."""
     conn.executescript(SCHEMA)
+    add_missing_columns(conn)
     conn.commit()
 
 

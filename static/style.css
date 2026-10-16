@@ -311,3 +311,9 @@ header {
 .errors p {
     margin: 0;
 }
+.notice {
+    background: var(--warn-bg);
+    color: var(--warn);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+}
