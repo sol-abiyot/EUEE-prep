@@ -317,3 +317,23 @@ header {
     border-radius: 8px;
     padding: 0.6rem 1rem;
 }
+.table-wrap {
+    overflow-x: auto;
+}
+
+table.history {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+}
+
+table.history th,
+table.history td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+}
+
+table.history th {
+    color: var(--brand-dark);
+}

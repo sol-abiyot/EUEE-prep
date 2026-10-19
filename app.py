@@ -25,6 +25,7 @@ from auth import (
     record_login,
     validate_registration,
 )
+from attempts import get_attempt, list_attempts, save_attempt
 from db import get_connection
 from grading import mark_quiz
 from quiz import (
@@ -186,13 +187,65 @@ def submit():
 
     answers = {q["id"]: request.form.get("answer_" + q["id"], "") for q in questions}
     result = mark_quiz(questions, answers)
+
+    if g.user is None:
+        # Only happens when REQUIRE_LOGIN is off (in tests): show the result, do not save it.
+        return render_template(
+            "results.html",
+            result=result,
+            subject=request.form.get("subject", ""),
+            topic=request.form.get("topic") or None,
+        )
+
+    conn = database()
+    try:
+        attempt_id = save_attempt(
+            conn, g.user["id"], questions, result, request.form.get("topic") or None
+        )
+    finally:
+        conn.close()
+    return redirect(url_for("attempt_detail", attempt_id=attempt_id))
+
+
+@app.route("/attempt/<int:attempt_id>")
+def attempt_detail(attempt_id):
+    if g.user is None:
+        return redirect(url_for("login", next=request.path))
+    conn = database()
+    try:
+        attempt, rows = get_attempt(conn, attempt_id, g.user["id"])
+    finally:
+        conn.close()
+    if attempt is None:
+        abort(404)
+
+    questions = [
+        q for q in (get_question_by_id(r["question_id"]) for r in rows) if q is not None
+    ]
+    answers = {r["question_id"]: r["chosen"] or "" for r in rows}
+    result = mark_quiz(questions, answers)
     return render_template(
-        "results.html",
-        result=result,
-        subject=request.form.get("subject", ""),
-        topic=request.form.get("topic") or None,
+        "results.html", result=result, subject=attempt["subject"], topic=attempt["topic"]
     )
 
+
+@app.route("/history")
+def history():
+    if g.user is None:
+        return redirect(url_for("login", next="/history"))
+    conn = database()
+    try:
+        rows = list_attempts(conn, g.user["id"])
+    finally:
+        conn.close()
+    attempts = [
+        {
+            **dict(r),
+            "percentage": round(r["score"] / r["total"] * 100, 1) if r["total"] else 0.0,
+        }
+        for r in rows
+    ]
+    return render_template("history.html", attempts=attempts)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
