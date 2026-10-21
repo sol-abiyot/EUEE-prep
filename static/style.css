@@ -366,3 +366,33 @@ table.history th {
     color: var(--muted);
     font-size: 0.9rem;
 }
+.auth-form select,
+.auth-form textarea {
+    width: 100%;
+    padding: 0.6rem;
+    margin: 0.2rem 0 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.auth-form.wide {
+    max-width: 640px;
+}
+
+.flash {
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.flash.success {
+    background: var(--good-bg);
+    color: var(--good);
+}
+
+.flash.error {
+    background: var(--bad-bg);
+    color: var(--bad);
+}

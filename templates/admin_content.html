@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Manage content - EUEE Prep{% endblock %}
+
+{% block content %}
+<h1>Manage content</h1>
+<p><a href="{{ url_for('admin_dashboard') }}">Back to the usage dashboard</a></p>
+
+<h2>Add a subject</h2>
+<form method="post" action="{{ url_for('admin_add_subject') }}" class="auth-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="subject_name">Subject name</label>
+    <input type="text" id="subject_name" name="name" required maxlength="60">
+    <button type="submit">Add subject</button>
+</form>
+
+<h2>Add a topic</h2>
+{% if subjects %}
+<form method="post" action="{{ url_for('admin_add_topic') }}" class="auth-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="topic_subject">Subject</label>
+    <select name="subject_id" id="topic_subject" required>
+        {% for s in subjects %}
+        <option value="{{ s.id }}">{{ s.name }}</option>
+        {% endfor %}
+    </select>
+    <label for="topic_name">Topic name</label>
+    <input type="text" id="topic_name" name="name" required maxlength="60">
+    <button type="submit">Add topic</button>
+</form>
+{% else %}
+<p>Add a subject first.</p>
+{% endif %}
+
+<h2>Add a question</h2>
+{% if question_errors %}
+<div class="errors">
+    <ul>
+        {% for e in question_errors %}<li>{{ e }}</li>{% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% if topics %}
+<form method="post" action="{{ url_for('admin_add_question') }}" class="auth-form wide">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label for="q_topic">Topic</label>
+    <select name="topic_id" id="q_topic" required>
+        <option value="">Choose a topic</option>
+        {% for t in topics %}
+        <option value="{{ t.id }}" {% if qform.get('topic_id') == t.id|string %}selected{% endif %}>{{ t.subject }}: {{ t.topic }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="q_difficulty">Difficulty</label>
+    <select name="difficulty" id="q_difficulty" required>
+        {% for d in ['easy', 'medium', 'hard'] %}
+        <option value="{{ d }}" {% if qform.get('difficulty') == d %}selected{% endif %}>{{ d|capitalize }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="q_text">Question</label>
+    <textarea id="q_text" name="question" rows="3" required maxlength="500">{{ qform.get('question', '') }}</textarea>
+
+    {% for letter in ['A', 'B', 'C', 'D'] %}
+    <label for="choice_{{ letter }}">Choice {{ letter }}</label>
+    <input type="text" id="choice_{{ letter }}" name="choice_{{ letter }}" value="{{ qform.get('choice_' ~ letter, '') }}" required maxlength="200">
+    {% endfor %}
+
+    <label for="q_answer">Correct answer</label>
+    <select name="answer" id="q_answer" required>
+        {% for letter in ['A', 'B', 'C', 'D'] %}
+        <option value="{{ letter }}" {% if qform.get('answer') == letter %}selected{% endif %}>{{ letter }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="q_explanation">Explanation (why the correct answer is correct)</label>
+    <textarea id="q_explanation" name="explanation" rows="3" required maxlength="1000">{{ qform.get('explanation', '') }}</textarea>
+
+    <button type="submit">Add question</button>
+</form>
+{% else %}
+<p>Add a subject and a topic first.</p>
+{% endif %}
+
+<h2>What is in the question bank</h2>
+<div class="table-wrap">
+    <table class="history">
+        <thead><tr><th>Subject</th><th>Topics</th><th>Questions</th></tr></thead>
+        <tbody>
+            {% for s in subjects %}
+            <tr><td>{{ s.name }}</td><td>{{ s.topics }}</td><td>{{ s.questions }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="table-wrap">
+    <table class="history">
+        <thead><tr><th>Subject</th><th>Topic</th><th>Questions</th></tr></thead>
+        <tbody>
+            {% for t in topics %}
+            <tr><td>{{ t.subject }}</td><td>{{ t.topic }}</td><td>{{ t.questions }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

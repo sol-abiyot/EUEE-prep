@@ -7,6 +7,7 @@ from pathlib import Path
 from flask import (
     Flask,
     abort,
+    flash,
     g,
     redirect,
     render_template,
@@ -32,6 +33,15 @@ from stats import (
     overview,
     recent_students,
     subject_scores,
+)
+from content import (
+    add_question,
+    add_subject,
+    add_topic,
+    subject_summary,
+    topic_summary,
+    validate_name,
+    validate_question,
 )
 from db import get_connection
 from grading import mark_quiz
@@ -62,6 +72,7 @@ def load_secret_key():
 app.secret_key = load_secret_key()
 app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax")
 app.config["REQUIRE_LOGIN"] = True
+app.config["CSRF_ENABLED"] = True
 
 DEFAULT_QUIZ_LENGTH = 5
 MAX_QUIZ_LENGTH = 50
@@ -102,7 +113,27 @@ def safe_next(value):
         return value
     return ""
 
+def csrf_token():
+    """Return this visitor's form-protection token, creating it if needed."""
+    token = session.get("csrf_token")
+    if token is None:
+        token = secrets.token_hex(16)
+        session["csrf_token"] = token
+    return token
 
+
+app.jinja_env.globals["csrf_token"] = csrf_token
+
+
+@app.before_request
+def check_csrf_token():
+    """Refuse form submissions that do not carry this visitor's token."""
+    if request.method != "POST" or not app.config["CSRF_ENABLED"]:
+        return
+    sent = request.form.get("csrf_token", "")
+    expected = session.get("csrf_token", "")
+    if not expected or not secrets.compare_digest(sent.encode(), expected.encode()):
+        abort(400)
 def login_required(view):
     """Send visitors who are not logged in to the login page."""
 
@@ -350,7 +381,89 @@ def admin_dashboard():
         conn.close()
     return render_template("admin_dashboard.html", **data)
 
+def content_page(conn, question_errors=None, qform=None):
+    """Show the admin content page with the lists the forms need."""
+    return render_template(
+        "admin_content.html",
+        subjects=subject_summary(conn),
+        topics=topic_summary(conn),
+        question_errors=question_errors or [],
+        qform=qform or {},
+    )
 
+
+@app.route("/admin/content")
+@admin_required
+def admin_content():
+    conn = database()
+    try:
+        return content_page(conn)
+    finally:
+        conn.close()
+
+
+@app.route("/admin/subjects", methods=["POST"])
+@admin_required
+def admin_add_subject():
+    conn = database()
+    try:
+        name, problem = validate_name(request.form.get("name", ""), "Subject name")
+        if problem is None:
+            _, problem = add_subject(conn, name)
+    finally:
+        conn.close()
+    if problem:
+        flash(problem, "error")
+    else:
+        flash(
+            f"Subject '{name}' added. It appears on the home page once it has a question.",
+            "success",
+        )
+    return redirect(url_for("admin_content"))
+
+
+@app.route("/admin/topics", methods=["POST"])
+@admin_required
+def admin_add_topic():
+    conn = database()
+    try:
+        name, problem = validate_name(request.form.get("name", ""), "Topic name")
+        if problem is None:
+            _, problem = add_topic(conn, request.form.get("subject_id", ""), name)
+    finally:
+        conn.close()
+    if problem:
+        flash(problem, "error")
+    else:
+        flash(f"Topic '{name}' added.", "success")
+    return redirect(url_for("admin_content"))
+
+
+@app.route("/admin/questions", methods=["POST"])
+@admin_required
+def admin_add_question():
+    data, errors = validate_question(request.form)
+    conn = database()
+    try:
+        if not errors:
+            question_id, problem = add_question(conn, data)
+            if problem:
+                errors.append(problem)
+            else:
+                flash(f"Question {question_id} added.", "success")
+                return redirect(url_for("admin_content"))
+        return content_page(conn, question_errors=errors, qform=request.form), 400
+    finally:
+        conn.close()
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    return render_template(
+        "error.html",
+        title="Request not accepted",
+        message="Your session may have expired. Please go back, reload the page and try again.",
+    ), 400
 @app.errorhandler(403)
 def forbidden(error):
     return render_template(
