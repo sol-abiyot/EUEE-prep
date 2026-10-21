@@ -337,3 +337,32 @@ table.history td {
 table.history th {
     color: var(--brand-dark);
 }
+.muted {
+    color: var(--muted);
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.8rem;
+    margin: 1rem 0 1.5rem;
+}
+
+.stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--brand);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+}
+
+.stat strong {
+    display: block;
+    font-size: 1.8rem;
+    color: var(--brand-dark);
+}
+
+.stat span {
+    color: var(--muted);
+    font-size: 0.9rem;
+}

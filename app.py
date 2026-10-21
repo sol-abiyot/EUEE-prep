@@ -26,6 +26,13 @@ from auth import (
     validate_registration,
 )
 from attempts import get_attempt, list_attempts, save_attempt
+from stats import (
+    logins_per_day,
+    most_missed_questions,
+    overview,
+    recent_students,
+    subject_scores,
+)
 from db import get_connection
 from grading import mark_quiz
 from quiz import (
@@ -104,6 +111,19 @@ def login_required(view):
         if app.config["REQUIRE_LOGIN"] and g.user is None:
             target = request.full_path.rstrip("?") if request.method == "GET" else None
             return redirect(url_for("login", next=target))
+        return view(*args, **kwargs)
+
+    return wrapped
+def admin_required(view):
+    """Only logged-in administrators may open the page."""
+
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if g.user is None:
+            target = request.full_path.rstrip("?") if request.method == "GET" else None
+            return redirect(url_for("login", next=target))
+        if g.user["role"] != "admin":
+            abort(403)
         return view(*args, **kwargs)
 
     return wrapped
@@ -314,7 +334,30 @@ def logout():
     session.clear()
     return redirect(url_for("home"))
 
+@app.route("/admin")
+@admin_required
+def admin_dashboard():
+    conn = database()
+    try:
+        data = {
+            "overview": overview(conn),
+            "daily": logins_per_day(conn),
+            "subjects": subject_scores(conn),
+            "missed": most_missed_questions(conn),
+            "students": recent_students(conn),
+        }
+    finally:
+        conn.close()
+    return render_template("admin_dashboard.html", **data)
 
+
+@app.errorhandler(403)
+def forbidden(error):
+    return render_template(
+        "error.html",
+        title="Not allowed",
+        message="You do not have permission to open this page.",
+    ), 403
 @app.errorhandler(404)
 def not_found(error):
     return render_template("404.html"), 404

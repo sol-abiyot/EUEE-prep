@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Admin dashboard - EUEE Prep{% endblock %}
+
+{% block content %}
+<h1>Usage dashboard</h1>
+<p class="muted">Student activity only. Administrator accounts are not counted. Dates are in UTC.</p>
+
+<div class="stats">
+    <div class="stat"><strong>{{ overview.students }}</strong><span>Registered students</span></div>
+    <div class="stat"><strong>{{ overview.active_students }}</strong><span>Students who took a quiz</span></div>
+    <div class="stat"><strong>{{ overview.quizzes }}</strong><span>Quizzes taken</span></div>
+    <div class="stat"><strong>{{ overview.logins }}</strong><span>Logins</span></div>
+    <div class="stat"><strong>{{ overview.questions }}</strong><span>Questions in the bank</span></div>
+</div>
+
+<h2>Logins in the last 14 days</h2>
+{% if daily %}
+<div class="table-wrap">
+    <table class="history">
+        <thead><tr><th>Day</th><th>Logins</th><th>Different students</th></tr></thead>
+        <tbody>
+            {% for d in daily %}
+            <tr><td>{{ d.day }}</td><td>{{ d.logins }}</td><td>{{ d.students }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No student logins yet.</p>
+{% endif %}
+
+<h2>Average score by subject</h2>
+{% if subjects %}
+<div class="table-wrap">
+    <table class="history">
+        <thead><tr><th>Subject</th><th>Quizzes</th><th>Average score</th></tr></thead>
+        <tbody>
+            {% for s in subjects %}
+            <tr><td>{{ s.subject }}</td><td>{{ s.attempts }}</td><td>{{ s.avg_percent }}%</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No quizzes have been taken yet.</p>
+{% endif %}
+
+<h2>Most-missed questions</h2>
+{% if missed %}
+<div class="table-wrap">
+    <table class="history">
+        <thead><tr><th>Question</th><th>Answered</th><th>Wrong</th><th>% wrong</th></tr></thead>
+        <tbody>
+            {% for m in missed %}
+            <tr>
+                <td>{{ m.question_text|math }}</td>
+                <td>{{ m.times_answered }}</td>
+                <td>{{ m.times_wrong }}</td>
+                <td>{{ m.wrong_percent }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No answers recorded yet.</p>
+{% endif %}
+
+<h2>Students</h2>
+{% if students %}
+<div class="table-wrap">
+    <table class="history">
+        <thead>
+            <tr><th>Username</th><th>Name</th><th>Registered</th><th>Last login</th><th>Quizzes</th></tr>
+        </thead>
+        <tbody>
+            {% for s in students %}
+            <tr>
+                <td>{{ s.username }}</td>
+                <td>{{ s.display_name or "" }}</td>
+                <td>{{ s.created_at }}</td>
+                <td>{{ s.last_login_at or "" }}</td>
+                <td>{{ s.quizzes }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No students have registered yet.</p>
+{% endif %}
+{% endblock %}
