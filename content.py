@@ -160,3 +160,108 @@ def topic_summary(conn):
         ORDER BY s.name, t.name
         """
     ).fetchall()
+
+
+def answer_count(conn, question_id):
+    """How many times students have answered this question."""
+    return conn.execute(
+        "SELECT COUNT(*) FROM attempt_answers WHERE question_id = ?", (question_id,)
+    ).fetchone()[0]
+
+
+def list_questions(conn, topic_id=None, limit=300):
+    """Questions with their subject, topic and how often they were answered."""
+    return conn.execute(
+        """
+        SELECT q.id AS id, s.name AS subject, t.name AS topic,
+               q.difficulty AS difficulty, q.question_text AS question_text,
+               (SELECT COUNT(*) FROM attempt_answers aa
+                WHERE aa.question_id = q.id) AS answered
+        FROM questions q
+        JOIN topics t ON t.id = q.topic_id
+        JOIN subjects s ON s.id = t.subject_id
+        WHERE (? IS NULL OR q.topic_id = ?)
+        ORDER BY s.name, t.name, q.id
+        LIMIT ?
+        """,
+        (topic_id, topic_id, limit),
+    ).fetchall()
+
+
+def get_question_form(conn, question_id):
+    """The stored question as form values, or None if it does not exist."""
+    row = conn.execute(
+        "SELECT topic_id, difficulty, question_text, explanation, correct_choice "
+        "FROM questions WHERE id = ?",
+        (question_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    form = {
+        "topic_id": str(row["topic_id"]),
+        "difficulty": row["difficulty"],
+        "question": row["question_text"],
+        "answer": row["correct_choice"],
+        "explanation": row["explanation"],
+    }
+    for choice in conn.execute(
+        "SELECT letter, choice_text FROM choices WHERE question_id = ?", (question_id,)
+    ):
+        form["choice_" + choice["letter"]] = choice["choice_text"]
+    return form
+
+
+def update_question(conn, question_id, data):
+    """Save changes to a checked question. Returns a problem message, or None."""
+    if conn.execute(
+        "SELECT 1 FROM questions WHERE id = ?", (question_id,)
+    ).fetchone() is None:
+        return "That question does not exist."
+    if conn.execute(
+        "SELECT 1 FROM topics WHERE id = ?", (data["topic_id"],)
+    ).fetchone() is None:
+        return "That topic does not exist."
+    if conn.execute(
+        "SELECT 1 FROM questions WHERE topic_id = ? "
+        "AND lower(question_text) = lower(?) AND id != ?",
+        (data["topic_id"], data["question"], question_id),
+    ).fetchone():
+        return "Another question in this topic already has that text."
+
+    conn.execute(
+        "UPDATE questions SET topic_id = ?, difficulty = ?, question_text = ?, "
+        "explanation = ?, correct_choice = ? WHERE id = ?",
+        (
+            data["topic_id"],
+            data["difficulty"],
+            data["question"],
+            data["explanation"],
+            data["answer"],
+            question_id,
+        ),
+    )
+    for letter, text in data["choices"].items():
+        conn.execute(
+            "UPDATE choices SET choice_text = ? WHERE question_id = ? AND letter = ?",
+            (text, question_id, letter),
+        )
+    conn.commit()
+    return None
+
+
+def delete_question(conn, question_id):
+    """Delete a question nobody has answered. Returns a problem message, or None."""
+    if conn.execute(
+        "SELECT 1 FROM questions WHERE id = ?", (question_id,)
+    ).fetchone() is None:
+        return "That question does not exist."
+    times = answer_count(conn, question_id)
+    if times:
+        return (
+            f"This question has been answered {times} time(s), so it cannot be "
+            "deleted without losing students' records. Edit it instead."
+        )
+    conn.execute("DELETE FROM choices WHERE question_id = ?", (question_id,))
+    conn.execute("DELETE FROM questions WHERE id = ?", (question_id,))
+    conn.commit()
+    return None

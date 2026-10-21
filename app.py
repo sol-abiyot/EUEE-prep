@@ -38,8 +38,13 @@ from content import (
     add_question,
     add_subject,
     add_topic,
+    answer_count,
+    delete_question,
+    get_question_form,
+    list_questions,
     subject_summary,
     topic_summary,
+    update_question,
     validate_name,
     validate_question,
 )
@@ -464,6 +469,66 @@ def bad_request(error):
         title="Request not accepted",
         message="Your session may have expired. Please go back, reload the page and try again.",
     ), 400
+@app.route("/admin/bank")
+@admin_required
+def admin_questions():
+    topic_id = request.args.get("topic_id", type=int)
+    conn = database()
+    try:
+        return render_template(
+            "admin_questions.html",
+            questions=list_questions(conn, topic_id),
+            topics=topic_summary(conn),
+            selected_topic=topic_id,
+        )
+    finally:
+        conn.close()
+
+
+@app.route("/admin/questions/<question_id>/edit", methods=["GET", "POST"])
+@admin_required
+def admin_edit_question(question_id):
+    conn = database()
+    try:
+        qform = get_question_form(conn, question_id)
+        if qform is None:
+            abort(404)
+        errors = []
+        if request.method == "POST":
+            data, errors = validate_question(request.form)
+            qform = request.form
+            if not errors:
+                problem = update_question(conn, question_id, data)
+                if problem:
+                    errors.append(problem)
+                else:
+                    flash(f"Question {question_id} saved.", "success")
+                    return redirect(url_for("admin_questions"))
+        return render_template(
+            "admin_question_edit.html",
+            question_id=question_id,
+            qform=qform,
+            errors=errors,
+            topics=topic_summary(conn),
+            answered=answer_count(conn, question_id),
+        ), (400 if errors else 200)
+    finally:
+        conn.close()
+
+
+@app.route("/admin/questions/<question_id>/delete", methods=["POST"])
+@admin_required
+def admin_delete_question(question_id):
+    conn = database()
+    try:
+        problem = delete_question(conn, question_id)
+    finally:
+        conn.close()
+    if problem:
+        flash(problem, "error")
+    else:
+        flash(f"Question {question_id} deleted.", "success")
+    return redirect(url_for("admin_questions"))
 @app.errorhandler(403)
 def forbidden(error):
     return render_template(

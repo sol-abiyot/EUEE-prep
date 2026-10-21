@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Edit question - EUEE Prep{% endblock %}
+
+{% block content %}
+<h1>Edit question {{ question_id }}</h1>
+<p><a href="{{ url_for('admin_questions') }}">Back to all questions</a></p>
+
+{% if answered %}
+<p class="notice">This question has been answered {{ answered }} time(s). If you change the correct answer, students who review their old results will see the new answer key.</p>
+{% endif %}
+
+{% if errors %}
+<div class="errors">
+    <ul>
+        {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="post" action="{{ url_for('admin_edit_question', question_id=question_id) }}" class="auth-form wide">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label for="q_topic">Topic</label>
+    <select name="topic_id" id="q_topic" required>
+        {% for t in topics %}
+        <option value="{{ t.id }}" {% if qform.get('topic_id') == t.id|string %}selected{% endif %}>{{ t.subject }}: {{ t.topic }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="q_difficulty">Difficulty</label>
+    <select name="difficulty" id="q_difficulty" required>
+        {% for d in ['easy', 'medium', 'hard'] %}
+        <option value="{{ d }}" {% if qform.get('difficulty') == d %}selected{% endif %}>{{ d|capitalize }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="q_text">Question</label>
+    <textarea id="q_text" name="question" rows="3" required maxlength="500">{{ qform.get('question', '') }}</textarea>
+
+    {% for letter in ['A', 'B', 'C', 'D'] %}
+    <label for="choice_{{ letter }}">Choice {{ letter }}</label>
+    <input type="text" id="choice_{{ letter }}" name="choice_{{ letter }}" value="{{ qform.get('choice_' ~ letter, '') }}" required maxlength="200">
+    {% endfor %}
+
+    <label for="q_answer">Correct answer</label>
+    <select name="answer" id="q_answer" required>
+        {% for letter in ['A', 'B', 'C', 'D'] %}
+        <option value="{{ letter }}" {% if qform.get('answer') == letter %}selected{% endif %}>{{ letter }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="q_explanation">Explanation (why the correct answer is correct)</label>
+    <textarea id="q_explanation" name="explanation" rows="3" required maxlength="1000">{{ qform.get('explanation', '') }}</textarea>
+
+    <button type="submit">Save changes</button>
+</form>
+{% endblock %}

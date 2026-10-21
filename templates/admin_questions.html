@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}All questions - EUEE Prep{% endblock %}
+
+{% block content %}
+<h1>All questions</h1>
+<p>
+    <a href="{{ url_for('admin_content') }}">Add content</a> |
+    <a href="{{ url_for('admin_dashboard') }}">Usage dashboard</a>
+</p>
+
+<form method="get" action="{{ url_for('admin_questions') }}" class="filter">
+    <label for="topic_id">Show</label>
+    <select name="topic_id" id="topic_id">
+        <option value="">All topics</option>
+        {% for t in topics %}
+        <option value="{{ t.id }}" {% if selected_topic == t.id %}selected{% endif %}>{{ t.subject }}: {{ t.topic }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+<p>{{ questions|length|plural }} shown.</p>
+
+<div class="table-wrap">
+    <table class="history">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Subject / topic</th>
+                <th>Level</th>
+                <th>Question</th>
+                <th>Answered</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for q in questions %}
+            <tr>
+                <td>{{ q.id }}</td>
+                <td>{{ q.subject }} / {{ q.topic }}</td>
+                <td>{{ q.difficulty }}</td>
+                <td>{{ q.question_text|math }}</td>
+                <td>{{ q.answered }}</td>
+                <td>
+                    <a href="{{ url_for('admin_edit_question', question_id=q.id) }}">Edit</a>
+                    <form method="post" action="{{ url_for('admin_delete_question', question_id=q.id) }}" class="inline" onsubmit="return confirm('Delete this question?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

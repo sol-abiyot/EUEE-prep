@@ -396,3 +396,32 @@ table.history th {
     background: var(--bad-bg);
     color: var(--bad);
 }
+.filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.filter select {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+form.inline {
+    display: inline;
+    margin: 0;
+}
+
+button.danger {
+    background: var(--bad);
+    padding: 0.3rem 0.8rem;
+    font-size: 0.9rem;
+}
+
+button.danger:hover {
+    background: #8c1d18;
+}
