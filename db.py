@@ -193,6 +193,11 @@ def fetch_all_questions(conn):
         for row in rows
     ]
 if __name__ == "__main__":
+    print("WARNING: this reloads the original questions from the JSON files and")
+    print("overwrites any edits made to them in the admin pages.")
+    if input("Type RELOAD to continue: ").strip() != "RELOAD":
+        print("Cancelled. Nothing was changed.")
+        raise SystemExit(0)
     connection = get_connection()
     init_db(connection)
     total = seed_from_json(connection)
